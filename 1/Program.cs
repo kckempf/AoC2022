@@ -1,6 +1,3 @@
-// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
-
 var input = File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory(), "input.txt"));
 
 var max = 0;
