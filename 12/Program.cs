@@ -7,11 +7,6 @@ var test = new string[]
     "abdefghi"
 };
 
-var Distance = (int distance, int x, int y, int endX, int endY) =>
-{
-    return distance + Math.Sqrt(((x - endX)*(x - endX)) + ((y - endY)*(y - endY)));
-};
-
 void FindShortestPath(string[] input, char start)
 {
     var dirs = new int[][]
@@ -69,7 +64,7 @@ void FindShortestPath(string[] input, char start)
                 var nextHeight = nextChar == 'S' ? 0 : nextChar - 'a'; 
                 if (nextHeight >= currHeight - 1)
                 {
-                    visited[next.X][next.Y] = true;
+                    visited[next.X][next.Y] = true; // must store history here or we will visit same node repeatedly
                     queue.Enqueue(next);
                 }
             }
