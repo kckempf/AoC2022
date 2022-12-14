@@ -12,7 +12,7 @@ var Distance = (int distance, int x, int y, int endX, int endY) =>
     return distance + Math.Sqrt(((x - endX)*(x - endX)) + ((y - endY)*(y - endY)));
 };
 
-void FindShortestPath(string[] input)
+void FindShortestPath(string[] input, char start)
 {
     var x = -1;
     var y = -1;
@@ -39,19 +39,18 @@ void FindShortestPath(string[] input)
         endX = input[endY].IndexOf('E');
         k++;
     }
-    Console.WriteLine($"endX:{endX}, endY:{endY}");
     var visited = new bool[input[0].Length][];
     for (int i = 0; i < visited.Length; i++)
         visited[i]  = new bool[input.Length];
-    visited[x][y] = true;
+    visited[endX][endY] = true;
     var queue = new Queue<Cell>();
-    queue.Enqueue(new Cell(x, y, 0));
+    queue.Enqueue(new Cell(endX, endY, 0));
     while (queue.Count > 0)
     {
         var curr = queue.Dequeue();
-        if (input[curr.Y][curr.X] == 'E')
+        if (input[curr.Y][curr.X] == start)
         {
-            Console.WriteLine($"distance :{curr.Distance}");
+            Console.WriteLine($"distance: {curr.Distance}");
             return;
         }
         
@@ -69,9 +68,15 @@ void FindShortestPath(string[] input)
             {
                 var nextChar = input[next.Y][next.X];
                 var currChar = input[curr.Y][curr.X];
-                var currHeight = currChar == 'S' ? 0 : currChar - 'a';
-                var nextHeight = nextChar == 'E' ? 25 : nextChar - 'a'; 
-                if (nextHeight - 1 <= currHeight)
+                var currHeight = 0;
+                if (currChar == 'E')
+                    currHeight = 25;
+                else if (currChar == 'S')
+                    currHeight = 0;
+                else
+                    currHeight = currChar - 'a';
+                var nextHeight = nextChar == 'S' ? 0 : nextChar - 'a'; 
+                if (nextHeight >= currHeight - 1)
                 {
                     visited[next.X][next.Y] = true;
                     queue.Enqueue(next);
@@ -82,8 +87,10 @@ void FindShortestPath(string[] input)
 }
 
 var input = File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory(), "input.txt"));
-FindShortestPath(test);
-FindShortestPath(input);
+FindShortestPath(test, 'S');
+FindShortestPath(test, 'a');
+FindShortestPath(input, 'S');
+FindShortestPath(input, 'a');
 
 class Cell
 {
@@ -97,5 +104,4 @@ class Cell
     public int X { get; set; }
     public int Y { get; set; }
     public int Distance { get; set; }
-    //public HashSet<string> Visited { get; set; }
 }
