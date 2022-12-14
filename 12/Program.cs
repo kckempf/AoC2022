@@ -33,18 +33,19 @@ void FindShortestPath(string[] input)
     var endX = -1;
     var endY = -1;
     k = 0;
-    while (x < 0)
+    while (endX < 0)
     {
         endY = k;
         endX = input[endY].IndexOf('E');
         k++;
     }
-    
-    var visited = new HashSet<string>();
-    visited.Add($"{x},{y}");
-    var queue = new PriorityQueue<Cell, double>();
-    queue.Enqueue(new Cell(x, y, 0), Distance(0, x, y, endX, endY));
-    
+    Console.WriteLine($"endX:{endX}, endY:{endY}");
+    var visited = new bool[input[0].Length][];
+    for (int i = 0; i < visited.Length; i++)
+        visited[i]  = new bool[input.Length];
+    visited[x][y] = true;
+    var queue = new Queue<Cell>();
+    queue.Enqueue(new Cell(x, y, 0));
     while (queue.Count > 0)
     {
         var curr = queue.Dequeue();
@@ -53,7 +54,7 @@ void FindShortestPath(string[] input)
             Console.WriteLine($"distance :{curr.Distance}");
             return;
         }
-        visited.Add($"{curr.X},{curr.Y}");
+        
         foreach (var dir in dirs)
         {
             var next = new Cell(curr.X + dir[0], curr.Y + dir[1], curr.Distance + 1);
@@ -63,7 +64,7 @@ void FindShortestPath(string[] input)
                 next.X < input[0].Length &&
                 next.Y >=0 &&
                 next.Y < input.Length &&
-                !visited.Contains($"{next.X},{next.Y}")
+                !visited[next.X][next.Y]
             )
             {
                 var nextChar = input[next.Y][next.X];
@@ -72,7 +73,8 @@ void FindShortestPath(string[] input)
                 var nextHeight = nextChar == 'E' ? 25 : nextChar - 'a'; 
                 if (nextHeight - 1 <= currHeight)
                 {
-                    queue.Enqueue(next, Distance(next.Distance, next.X, next.Y, endX, endY));
+                    visited[next.X][next.Y] = true;
+                    queue.Enqueue(next);
                 }
             }
         }
