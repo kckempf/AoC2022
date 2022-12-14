@@ -14,9 +14,6 @@ var Distance = (int distance, int x, int y, int endX, int endY) =>
 
 void FindShortestPath(string[] input, char start)
 {
-    var x = -1;
-    var y = -1;
-    var k = 0;
     var dirs = new int[][]
     {
         new int[]{1,0},
@@ -24,15 +21,9 @@ void FindShortestPath(string[] input, char start)
         new int[]{0,1},
         new int[]{0,-1}
     };
-    while (x < 0)
-    {
-        y = k;
-        x = input[y].IndexOf('S');
-        k++;
-    }
     var endX = -1;
     var endY = -1;
-    k = 0;
+    var k = 0;
     while (endX < 0)
     {
         endY = k;
