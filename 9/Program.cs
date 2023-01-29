@@ -22,12 +22,15 @@ var test2 = new string[]
     "U 20"
 };
 
-var FindTailTraversal = (string[] input) =>
+var FindTailTraversal = (string[] input, int ropeLength) =>
 {
     var history = new HashSet<string>();
-    var head = new int[2];
-    var temp = new int[2];
-    history.Add($"{temp[0]},{temp[1]}");
+    var knots = new int[ropeLength][];
+    for (int i = 0; i < ropeLength; i++)
+    {
+        knots[i] = new int[2]{0, 0};
+    }
+    history.Add($"0,0");
     var output = 1;
     var dirs = new Dictionary<string, int[]>()
     {
@@ -44,37 +47,62 @@ var FindTailTraversal = (string[] input) =>
         var queue = new Queue<int[]>();
         while (distance > 0)
         {
-            var hold = new int[2];          
-            hold[0] = head[0];              
-            hold[1] = head[1];              // set hold to current head
-            head[0] += dirs[direction][0];  // advance the head
-            head[1] += dirs[direction][1];
-            if 
-            (
-                head[0] - temp[0] > 1 ||    // see if temp needs to move
-                temp[0] - head[0] > 1 ||
-                head[1] - temp[1] > 1 ||
-                temp[1] - head[1] > 1
-            )
+            knots[0][0] += dirs[direction][0];  // advance the head
+            knots[0][1] += dirs[direction][1];
+            var tempString = string.Empty;
+
+            // Advanced the following knots
+            for (int i = 1; i < knots.Length; i++)
             {
-                temp[0] = hold[0];          // set temp to previous head position
-                temp[1] = hold[1];
-                var tempString = $"{temp[0]},{temp[1]}";
-                if (!history.Contains(tempString))
+                // Knots in same column, advance when row difference > 1
+                if (knots[i][0] == knots[i - 1][0])
                 {
-                    history.Add(tempString);
-                    output++;
+                    if (knots[i][1] - knots[i - 1][1] == 2)
+                        knots[i][1] -= 1;
+                    else if (knots[i][1] - knots[i - 1][1] == -2)
+                        knots[i][1] += 1;
                 }
+                // Knots in same row, advance when column difference > 1
+                else if (knots[i][1] == knots[i - 1][1])
+                {
+                    if (knots[i][0] - knots[i - 1][0] == 2)
+                        knots[i][0] -= 1;
+                    else if (knots[i][0] - knots[i - 1][0] == -2)
+                        knots[i][0] += 1;
+                }
+                // if not in same row or column, advance when distance > 1 for both row and column
+                // Distance formula: d = sqrt((x1 - x2)^2 + (y1 - y2)^2)
+                // Distance is > 1 when (x1 - x2)^2 + (y1 - y2)^2 > 2 because sqrt(2) < 2 < sqrt(5)
+                else if (((knots[i][0] - knots[i - 1][0])*(knots[i][0] - knots[i - 1][0]))
+                    + ((knots[i][1] - knots[i - 1][1])*(knots[i][1] - knots[i - 1][1]))
+                    > 2)
+                {
+                    if (knots[i][0] < knots[i - 1][0])
+                        knots[i][0] += 1;
+                    else
+                        knots[i][0] -= 1;
+                    if (knots[i][1] < knots[i - 1][1])
+                        knots[i][1] += 1;
+                    else
+                        knots[i][1] -= 1;
+                }
+                tempString = $"{knots[i][0]},{knots[i][1]}";
             }
-            
+            if (!history.Contains(tempString))
+            {
+                history.Add(tempString);
+                output++;
+            }
             distance--;
         }
     }
     return output;
 };
 
-Console.WriteLine($"first test: {FindTailTraversal(test)}");
+Console.WriteLine($"first test: {FindTailTraversal(test, 2)}");
 
 var input = File.ReadAllLines(Path.Combine(Directory.GetCurrentDirectory(), "input.txt"));
-Console.WriteLine($"first result: {FindTailTraversal(input)}");
+Console.WriteLine($"first result: {FindTailTraversal(input, 2)}");
 
+Console.WriteLine($"second test: {FindTailTraversal(test2, 10)}");
+Console.WriteLine($"second result: {FindTailTraversal(input, 10)}");
