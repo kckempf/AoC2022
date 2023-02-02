@@ -5,6 +5,7 @@ long CalculateMonkeyBusiness(string[] input, long divisor, int rounds)
 {
     var monkeys = new List<Monkey>();
     var currentIndex = 0;
+    long divisorsProduct = 1;
     for (int i = 0; i < input.Length; i++)
     {
         var parsedRow = input[i].Trim().Split(' ');
@@ -18,7 +19,7 @@ long CalculateMonkeyBusiness(string[] input, long divisor, int rounds)
                 var monkey = monkeys[currentIndex - 1];
                 for (int j = 2; j < parsedRow.Length; j++)
                 {
-                    Int64.TryParse(parsedRow[j].Trim(new Char[]{','}), out long item);
+                    long.TryParse(parsedRow[j].Trim(new Char[]{','}), out long item);
                     monkey.StartingItems.Add(item);
                 }
                 break;
@@ -29,15 +30,16 @@ long CalculateMonkeyBusiness(string[] input, long divisor, int rounds)
             case "Test:":
                 monkey = monkeys[currentIndex - 1];
                 monkey.Test = new int[3];
-                Int32.TryParse(parsedRow[3], out int endValue);
+                int.TryParse(parsedRow[3], out int endValue);
                 monkey.Test[0] = endValue;
+                divisorsProduct *= (long)endValue;
                 i++;
                 parsedRow = input[i].Trim().Split(' ');
-                Int32.TryParse(parsedRow[5], out endValue);
+                int.TryParse(parsedRow[5], out endValue);
                 monkey.Test[1] = endValue;
                 i++;
                 parsedRow = input[i].Trim().Split(' ');
-                Int32.TryParse(parsedRow[5], out endValue);
+                int.TryParse(parsedRow[5], out endValue);
                 monkey.Test[2] = endValue;
                 break;
             default:
@@ -58,17 +60,19 @@ long CalculateMonkeyBusiness(string[] input, long divisor, int rounds)
                 switch (operation)
                 {
                     case "+":
-                        worryLevel += Int64.TryParse(subject, out number) ? number : worryLevel;
+                        worryLevel += long.TryParse(subject, out number) ? number : worryLevel;
                         break;
                     case "*":
-                        worryLevel *= Int64.TryParse(subject, out number) ? number : worryLevel;
+                        worryLevel *= long.TryParse(subject, out number) ? number : worryLevel;
                         break;
                     default:
                         break;
                 }
-                worryLevel = worryLevel / divisor;
-                var nextMonkey = worryLevel % Convert.ToInt64(monkey.Test[0]) == 0 ? monkey.Test[1] : monkey.Test[2];
-                monkeys[nextMonkey].StartingItems.Add(worryLevel);
+                worryLevel /= divisor;
+                worryLevel %= divisorsProduct;
+                var testDivisor = Convert.ToInt32(monkey.Test[0]);
+                var nextMonkey = worryLevel % (long)testDivisor == 0 ? monkey.Test[1] : monkey.Test[2];
+                monkeys[(int)nextMonkey].StartingItems.Add(worryLevel);
                 monkey.StartingItems.Remove(item);
             }
         }
@@ -85,13 +89,12 @@ long CalculateMonkeyBusiness(string[] input, long divisor, int rounds)
         else if (monkey.Inspections > second)
             second = monkey.Inspections;
     }
-    Console.WriteLine($"first: {first} second: {second}");
     return first * second;
 }
 
 Console.WriteLine($"first test: {CalculateMonkeyBusiness(test, 3, 20)}");
 Console.WriteLine($"first result: {CalculateMonkeyBusiness(input, 3, 20)}");
-Console.WriteLine($"second test: {CalculateMonkeyBusiness(test, 1, 1000)}");
+Console.WriteLine($"second test: {CalculateMonkeyBusiness(test, 1, 10000)}");
 Console.WriteLine($"second result: {CalculateMonkeyBusiness(input, 1, 10000)}");
 class Monkey
 {
